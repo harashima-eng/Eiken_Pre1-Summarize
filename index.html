@@ -1,1 +1,224 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>Summarization Breakdown Index｜要約ブレイクダウン インデックス</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #020617;
+      --card-border: rgba(148, 163, 184, 0.6);
+      --accent: #3b82f6;
+      --accent-soft: rgba(59, 130, 246, 0.12);
+      --text-main: #e5e7eb;
+      --text-soft: #9ca3af;
+      --radius-xl: 22px;
+      --radius-md: 12px;
+    }
 
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top, rgba(59, 130, 246, 0.18), transparent 55%),
+        radial-gradient(circle at bottom, rgba(236, 72, 153, 0.15), transparent 60%),
+        var(--bg);
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+    }
+
+    .shell {
+      width: 100%;
+      max-width: 720px;
+      background: rgba(15, 23, 42, 0.96);
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--card-border);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+      padding: 20px 20px 22px;
+    }
+
+    header {
+      border-bottom: 1px solid rgba(148, 163, 184, 0.5);
+      padding-bottom: 10px;
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      font-size: clamp(1.5rem, 2.2vw + 0.3rem, 2rem);
+      letter-spacing: 0.03em;
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .tag-row {
+      margin-top: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .tag {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      color: var(--text-soft);
+    }
+
+    .tag-accent {
+      border-color: var(--accent);
+      color: #bfdbfe;
+    }
+
+    .content {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .info {
+      font-size: 0.9rem;
+      color: var(--text-soft);
+      line-height: 1.6;
+    }
+
+    .card-link {
+      margin-top: 4px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--card-border);
+      background: radial-gradient(circle at top left, var(--accent-soft), transparent 60%),
+                  var(--card-bg);
+      padding: 12px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.15s ease-out, box-shadow 0.15s ease-out,
+                  border-color 0.15s ease-out, background 0.15s ease-out;
+    }
+
+    .card-main {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .card-sub {
+      font-size: 0.86rem;
+      color: var(--text-soft);
+    }
+
+    .card-meta {
+      font-size: 0.75rem;
+      color: var(--text-soft);
+    }
+
+    .card-icon {
+      font-size: 1.6rem;
+    }
+
+    .card-link:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.9);
+      border-color: var(--accent);
+      background:
+        radial-gradient(circle at top left, rgba(59, 130, 246, 0.28), transparent 60%),
+        var(--card-bg);
+    }
+
+    .hint {
+      margin-top: 10px;
+      font-size: 0.8rem;
+      color: var(--text-soft);
+    }
+
+    .hint span {
+      color: #d1fae5;
+    }
+
+    @media (max-width: 600px) {
+      .shell {
+        padding: 16px 14px 18px;
+      }
+      .card-link {
+        align-items: flex-start;
+      }
+      .card-icon {
+        font-size: 1.4rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <h1>Summarization Breakdown Index</h1>
+      <p class="subtitle">
+        要約の「ブレイクダウン教材」への入口ページ。<br>
+        下のカードをタップして、本文→STEP1→STEP2→STEP3の流れを開く。
+      </p>
+      <div class="tag-row">
+        <span class="tag tag-accent">GitHub Pages</span>
+        <span class="tag">for Students</span>
+        <span class="tag">Summarization</span>
+      </div>
+    </header>
+
+    <div class="content">
+      <p class="info">
+        このリポジトリには、同じ英文を使って
+        <strong>① 内容を抜き出す → ② 不要な部分を削る → ③ 言い換えて要約を書く</strong>
+        までを全部見せる教材
+        <code>summarization_breakdown.html</code>
+        が入っています。
+      </p>
+
+      <!-- Main link card -->
+      <a class="card-link" href="summarization_breakdown.html">
+        <div class="card-main">
+          <div class="card-title">Open Summarization Breakdown</div>
+          <div class="card-sub">
+            Original passage, step-by-step breakdown, vocabulary, and discourse markers.
+            元の英文から要約完成までのプロセスが全部見えるページ。
+          </div>
+          <div class="card-meta">
+            File: <code>summarization_breakdown.html</code>
+          </div>
+        </div>
+        <div class="card-icon">➡️</div>
+      </a>
+
+      <p class="hint">
+        <span>Tip for students:</span>  
+        「まず本文だけ読む → もう一度戻って STEP1 から順に見る」みたいに、
+        何回か行き来しながら使うと、要約の“考え方”が身につきやすい。
+      </p>
+    </div>
+  </div>
+</body>
+</html>
