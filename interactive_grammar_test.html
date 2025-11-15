@@ -1,492 +1,1090 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Grammar Test with Japanese Support</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8" />
+  <title>Summarization Breakdown｜要約ブレイクダウン</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #0f172a;
+      --bg-soft: #111827;
+      --bg-softer: #020617;
+      --text-main: #e5e7eb;
+      --text-soft: #9ca3af;
+      --accent: #3b82f6;
+      --accent-soft: rgba(59, 130, 246, 0.15);
+      --accent-strong: #f97316;
+      --border-subtle: rgba(148, 163, 184, 0.5);
+      --box-bg: #020617;
+      --code-bg: #020617;
+    }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
+    body.theme-light {
+      --bg: #f3f4f6;
+      --bg-soft: #ffffff;
+      --bg-softer: #e5e7eb;
+      --text-main: #111827;
+      --text-soft: #4b5563;
+      --accent: #2563eb;
+      --accent-soft: rgba(37, 99, 235, 0.1);
+      --accent-strong: #ea580c;
+      --border-subtle: rgba(148, 163, 184, 0.6);
+      --box-bg: #f9fafb;
+      --code-bg: #111827;
+    }
 
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            overflow: hidden;
-        }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+      background: radial-gradient(circle at top, rgba(37, 99, 235, 0.16), transparent 55%),
+                  var(--bg);
+      color: var(--text-main);
+      min-height: 100vh;
+      padding: 16px;
+      display: flex;
+      justify-content: center;
+    }
 
-        .header h1 {
-            font-size: 2em;
-            margin-bottom: 10px;
-        }
+    .shell {
+      width: 100%;
+      max-width: 1100px;
+      background: linear-gradient(to bottom right, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.98));
+      background-color: var(--bg-soft);
+      border-radius: 22px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 24px 70px rgba(15, 23, 42, 0.9);
+      padding: 20px 20px 28px;
+    }
 
-        .content {
-            padding: 30px;
-        }
+    body.theme-light .shell {
+      background: radial-gradient(circle at top, rgba(59, 130, 246, 0.12), transparent 60%),
+                  var(--bg-soft);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.25);
+    }
 
-        .section {
-            margin-bottom: 30px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            overflow: hidden;
-        }
+    header.main-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
 
-        .section-header {
-            background: #f5f5f5;
-            padding: 15px 20px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: background 0.3s;
-        }
+    .title-block h1 {
+      font-size: clamp(1.6rem, 2.2vw + 0.4rem, 2.1rem);
+      letter-spacing: 0.03em;
+      margin-bottom: 3px;
+    }
 
-        .section-header:hover {
-            background: #e8e8e8;
-        }
+    .title-sub {
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
 
-        .section-header h2 {
-            color: #667eea;
-            font-size: 1.3em;
-        }
+    .tag-row {
+      margin-top: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
 
-        .toggle-icon {
-            font-size: 1.5em;
-            color: #667eea;
-            transition: transform 0.3s;
-        }
+    .tag {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-soft);
+    }
 
-        .section-header.active .toggle-icon {
-            transform: rotate(180deg);
-        }
+    .tag-accent {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
 
-        .section-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out;
-            padding: 0 20px;
-        }
+    .theme-toggle-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
 
-        .section-content.active {
-            max-height: 5000px;
-            padding: 20px;
-        }
+    .theme-btn {
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      background: var(--bg-soft);
+      color: var(--text-soft);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s ease-out, transform 0.15s ease-out,
+                  box-shadow 0.15s ease-out;
+    }
 
-        .question {
-            background: #fafafa;
-            padding: 20px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            border-left: 4px solid #667eea;
-        }
+    .theme-btn:hover {
+      background: var(--bg-softer);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.6);
+    }
 
-        .question-text {
-            font-size: 1.1em;
-            margin-bottom: 10px;
-            color: #333;
-            line-height: 1.6;
-        }
+    main {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: minmax(0, 2.2fr) minmax(0, 1.2fr);
+      gap: 18px;
+    }
 
-        .japanese-text {
-            color: #666;
-            font-size: 0.95em;
-            margin-top: 8px;
-            font-style: italic;
-        }
+    @media (max-width: 900px) {
+      main {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
 
-        .vocab-box {
-            background: #fff3cd;
-            border-left: 4px solid #ffc107;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 4px;
-        }
+    .main-col, .side-col {
+      min-width: 0;
+    }
 
-        .vocab-box strong {
-            color: #856404;
-        }
+    .section-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
 
-        .choices {
-            margin: 15px 0;
-        }
+    .section-title {
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+    }
 
-        .choice {
-            padding: 10px;
-            margin: 8px 0;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
+    .section-sub {
+      font-size: 0.9rem;
+      color: var(--text-soft);
+      margin-bottom: 12px;
+    }
 
-        .show-answer-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 1em;
-            transition: transform 0.2s, box-shadow 0.2s;
-            margin-top: 10px;
-        }
+    .box {
+      background: var(--box-bg);
+      border-radius: 16px;
+      border: 1px solid var(--border-subtle);
+      padding: 12px 14px;
+      margin-bottom: 16px;
+    }
 
-        .show-answer-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
+    .box-header {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
 
-        .answer-section {
-            display: none;
-            margin-top: 15px;
-            padding: 15px;
-            background: #f0f8ff;
-            border-radius: 8px;
-            border-left: 4px solid #4CAF50;
-        }
+    .box-header span.en {
+      color: var(--accent);
+    }
 
-        .answer-section.visible {
-            display: block;
-            animation: fadeIn 0.3s;
-        }
+    .box-header span.step {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      margin-right: 8px;
+    }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+    .box p {
+      font-size: 0.9rem;
+      line-height: 1.6;
+      margin-bottom: 6px;
+    }
 
-        .correct {
-            color: #4CAF50;
-            font-weight: bold;
-        }
+    .box p:last-child {
+      margin-bottom: 0;
+    }
 
-        .incorrect {
-            color: #f44336;
-        }
+    blockquote {
+      border-left: 3px solid var(--accent);
+      padding-left: 10px;
+      margin-bottom: 10px;
+      font-size: 0.9rem;
+    }
 
-        .explanation {
-            margin-top: 10px;
-            padding: 10px;
-            background: white;
-            border-radius: 5px;
-        }
+    .jp-note {
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
 
-        .grammar-point {
-            background: #e3f2fd;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-            border-left: 4px solid #2196F3;
-        }
-    </style>
+    .sent-row {
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px dashed rgba(148, 163, 184, 0.4);
+    }
+
+    .sent-en {
+      font-size: 0.9rem;
+      margin-bottom: 2px;
+    }
+
+    .sent-role {
+      font-size: 0.78rem;
+      color: var(--accent);
+      margin-bottom: 2px;
+    }
+
+    .sent-simpler {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      margin-bottom: 2px;
+    }
+
+    .sent-ja {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .pill {
+      font-size: 0.78rem;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-soft);
+      color: var(--text-soft);
+    }
+
+    .pill strong {
+      color: var(--accent-strong);
+    }
+
+    ul.clean {
+      list-style: none;
+      font-size: 0.9rem;
+    }
+
+    ul.clean li {
+      padding-left: 1em;
+      text-indent: -0.9em;
+      margin-bottom: 4px;
+    }
+
+    ul.clean li::before {
+      content: "・";
+      margin-right: 4px;
+      color: var(--accent);
+    }
+
+    mark {
+      background: var(--accent-soft);
+      color: inherit;
+      padding: 0 2px;
+      border-radius: 3px;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 10px;
+    }
+
+    @media (max-width: 720px) {
+      .two-col {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .label-en {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+
+    .sample-box {
+      margin-top: 8px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-soft);
+      font-size: 0.86rem;
+    }
+
+    .sample-en {
+      margin-bottom: 4px;
+    }
+
+    .sample-ja {
+      color: var(--text-soft);
+      font-size: 0.86rem;
+    }
+
+    .model-box {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--accent);
+      background: var(--accent-soft);
+      font-size: 0.9rem;
+    }
+
+    .model-ja {
+      margin-top: 6px;
+      font-size: 0.86rem;
+      color: var(--text-soft);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.86rem;
+      margin-top: 6px;
+    }
+
+    th, td {
+      border: 1px solid var(--border-subtle);
+      padding: 6px 8px;
+      vertical-align: top;
+    }
+
+    th {
+      background: var(--bg-soft);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    td {
+      background: var(--bg-soft);
+      color: var(--text-soft);
+    }
+
+    .phrase-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .phrase-card {
+      border-radius: 10px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-soft);
+      padding: 6px 8px;
+      font-size: 0.86rem;
+    }
+
+    .phrase-main {
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .phrase-sub {
+      font-size: 0.8rem;
+      color: var(--text-soft);
+    }
+
+    .side-col .box {
+      position: sticky;
+      top: 8px;
+    }
+
+    .side-list {
+      list-style: none;
+      font-size: 0.85rem;
+      margin-top: 4px;
+    }
+
+    .side-list li {
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      padding: 5px 9px;
+      margin-bottom: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-soft);
+      transition: background 0.15s ease-out, transform 0.15s ease-out,
+                  box-shadow 0.15s ease-out;
+    }
+
+    .side-list li span.num {
+      font-size: 0.75rem;
+      padding: 2px 7px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      color: var(--accent);
+    }
+
+    .side-list li:hover {
+      background: var(--bg-softer);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.6);
+    }
+
+    .mini-note {
+      margin-top: 6px;
+      font-size: 0.8rem;
+      color: var(--text-soft);
+    }
+
+    .side-tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 6px;
+    }
+
+    .side-tag {
+      font-size: 0.75rem;
+      padding: 3px 6px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-soft);
+    }
+
+    .bottom-note {
+      margin-top: 10px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+      text-align: right;
+    }
+  </style>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>📚 Interactive Grammar Test</h1>
-            <p>文法テスト - 日本語解説付き</p>
+<body class="theme-dark">
+  <div class="shell">
+    <header class="main-header">
+      <div class="title-block">
+        <h1>Summarization Breakdown｜要約ブレイクダウン</h1>
+        <p class="title-sub">
+          Same passage, no shortcuts. We read it, extract it, cut it, and paraphrase it.
+          英文をそのまま見せて、「どこをどう削って、どう言い換えるか」を全部見せる用。
+        </p>
+        <div class="tag-row">
+          <span class="tag tag-accent">STEP 1 Extract</span>
+          <span class="tag">STEP 2 Cut</span>
+          <span class="tag">STEP 3 Paraphrase</span>
+          <span class="tag">英語＋日本語説明</span>
         </div>
+      </div>
+      <div class="theme-toggle-wrap">
+        <button id="themeToggle" class="theme-btn">
+          🌙 Dark mode
+        </button>
+      </div>
+    </header>
 
-        <div class="content">
-            <!-- Section A -->
-            <div class="section">
-                <div class="section-header" onclick="toggleSection('sectionA')">
-                    <h2>Section A: Questions 1-3</h2>
-                    <span class="toggle-icon">▼</span>
-                </div>
-                <div id="sectionA" class="section-content">
-                    <!-- Question 1 -->
-                    <div class="question">
-                        <div class="question-text">
-                            <strong>1.</strong> Supporters of the proposal say that, if approved, the new by-law will reduce vandalism in the city.
-                            <div class="japanese-text">提案の支持者たちは、承認されれば、新しい条例が市内の器物破損を減らすだろうと言っている。</div>
-                        </div>
+    <main>
+      <div class="main-col">
+        <!-- ORIGINAL PASSAGE -->
+        <section id="original">
+          <p class="section-label">0. Original passage｜元の本文</p>
+          <h2 class="section-title">全文をまずそのまま読む</h2>
+          <p class="section-sub">
+            まずは「どこから要約が生まれてくるのか」をはっきりさせるために、元の本文をそのまま載せる。
+          </p>
+          <div class="box">
+            <div class="box-header">Original English</div>
+            <blockquote>
+              Scientists have struggled to create technology that fully replaces physical abilities
+              lost by people with disabilities. For example, electronic tablets assist with speaking
+              but slow down conversation. However, this might all change thanks to brain-machine
+              interfaces (BMIs). This technology makes it possible to control various devices using
+              brain signals.<br><br>
+              Supporters of this technology point to the medical benefits. The direct reading of
+              brain waves will not only allow people who are unable to move due to being paralyzed
+              to speak via their thoughts. They will also be able to manipulate artificial body
+              parts. These things will have major impacts on people's lives.<br><br>
+              However, some people worry about potential risks. Since BMIs read brain signals,
+              there is concern that thoughts and emotions could be accessed inappropriately. Misuse
+              of this data poses a serious privacy threat. Additionally, the technology could have
+              the opposite of its intended effect. The brain requires consistent exercise to
+              continue functioning at a high level. To give a small example, excessive use of a GPS
+              can weaken a person's navigation skills. Who knows what natural skills will be lost
+              due to excessive reliance on such technology?
+            </blockquote>
+            <p class="jp-note">
+              日本語ざっくり：科学者たちは、障害によって失われた身体能力を完全に代わる技術を探してきた。<br>
+              BMI という、脳の信号で機械を動かす技術が、その解決策になるかもしれない。一方で、プライバシーの問題や、<br>
+              技術に頼りすぎることで人間本来の能力が弱くなる危険もある、という話。
+            </p>
+          </div>
+        </section>
 
-                        <div class="vocab-box">
-                            <strong>📖 Vocabulary:</strong><br>
-                            • <strong>Supporters</strong> = 支持者 (people who agree with/support something)<br>
-                            • <strong>Proposal</strong> = 提案 (suggestion/plan)<br>
-                            • <strong>By-law</strong> = 条例 (local rule/regulation)<br>
-                            • <strong>Vandalism</strong> = 器物破損 (destroying property on purpose)
-                        </div>
+        <!-- STEP 1 -->
+        <section id="step1">
+          <p class="section-label">STEP 1</p>
+          <h2 class="section-title">Extract the content needed｜必要な情報を抜き出す</h2>
+          <p class="section-sub">
+            いきなり短く書かない。まずは、本文を「文ごと」「役割ごと」にバラして、<mark>何のための文か</mark>をはっきりさせる。
+          </p>
 
-                        <div class="choices">
-                            <div class="choice">A. Supporters</div>
-                            <div class="choice">B. proposal</div>
-                            <div class="choice">C. if approved</div>
-                            <div class="choice">D. will reduce</div>
-                        </div>
+          <div class="box">
+            <div class="box-header"><span class="en">Sentence-by-sentence breakdown｜文ごとの役割</span></div>
 
-                        <button class="show-answer-btn" onclick="toggleAnswer('q1')">Show Answer / 答えを見る</button>
+            <!-- Paragraph 1 -->
+            <p class="label-en">Paragraph 1</p>
 
-                        <div id="q1" class="answer-section">
-                            <div class="correct">✓ 正解: A. Supporters</div>
-                            <div class="explanation">
-                                <div class="grammar-point">
-                                    <strong>文法ポイント：主語と動詞の一致</strong><br>
-                                    「Supporters」(複数形) には「say」(複数動詞)を使うべきですが、この文では正しく使われています。<br><br>
-                                    <strong>なぜAが正解か：</strong><br>
-                                    この文には文法的な誤りがありません。すべての要素が正しく使われています。
-                                </div>
-                                <strong>他の選択肢の確認：</strong><br>
-                                <span class="incorrect">✗ B. proposal</span> - 正しく使われています<br>
-                                <span class="incorrect">✗ C. if approved</span> - 正しい条件節です<br>
-                                <span class="incorrect">✗ D. will reduce</span> - 正しい未来形です
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Question 2 -->
-                    <div class="question">
-                        <div class="question-text">
-                            <strong>2.</strong> Critics of the proposal claim that the new by-law will do little to tackle the problem.
-                            <div class="japanese-text">提案の批判者たちは、新しい条例が問題に取り組むのにほとんど効果がないだろうと主張している。</div>
-                        </div>
-
-                        <div class="vocab-box">
-                            <strong>📖 Vocabulary:</strong><br>
-                            • <strong>Critics</strong> = 批判者 (people who disagree with/criticize something)<br>
-                            • <strong>Claim</strong> = 主張する (to say something is true)<br>
-                            • <strong>Tackle</strong> = 取り組む (to deal with/handle a problem)
-                        </div>
-
-                        <div class="choices">
-                            <div class="choice">A. Critics</div>
-                            <div class="choice">B. claim</div>
-                            <div class="choice">C. will do</div>
-                            <div class="choice">D. to tackle</div>
-                        </div>
-
-                        <button class="show-answer-btn" onclick="toggleAnswer('q2')">Show Answer / 答えを見る</button>
-
-                        <div id="q2" class="answer-section">
-                            <div class="correct">✓ 正解: B. claim</div>
-                            <div class="explanation">
-                                <div class="grammar-point">
-                                    <strong>文法ポイント：主語と動詞の一致</strong><br>
-                                    「Critics」は複数形なので、「claims」(三人称単数)ではなく「claim」を使うべきです。<br><br>
-                                    <strong>正しい文：</strong><br>
-                                    Critics of the proposal claim that...<br>
-                                    (複数形の主語 + 複数形の動詞)
-                                </div>
-                                <strong>他の選択肢：</strong><br>
-                                <span class="incorrect">✗ A. Critics</span> - 正しい複数形です<br>
-                                <span class="incorrect">✗ C. will do</span> - 正しい未来形です<br>
-                                <span class="incorrect">✗ D. to tackle</span> - 正しい不定詞です
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Question 3 -->
-                    <div class="question">
-                        <div class="question-text">
-                            <strong>3.</strong> They argue that, if we are serious about preventing vandalism, we have to educate young people so that they understand why damaging public property is unacceptable.
-                            <div class="japanese-text">彼らは、器物破損を防ぐことに本気であるなら、若者たちに公共物を傷つけることがなぜ許されないのかを理解させるよう教育しなければならないと主張している。</div>
-                        </div>
-
-                        <div class="vocab-box">
-                            <strong>📖 Vocabulary:</strong><br>
-                            • <strong>Argue</strong> = 主張する (to give reasons for your opinion)<br>
-                            • <strong>Preventing</strong> = 防ぐこと (stopping something from happening)<br>
-                            • <strong>Public property</strong> = 公共物 (things owned by everyone/the city)<br>
-                            • <strong>Unacceptable</strong> = 許されない (not okay/not allowed)
-                        </div>
-
-                        <div class="choices">
-                            <div class="choice">A. argue</div>
-                            <div class="choice">B. preventing</div>
-                            <div class="choice">C. have to educate</div>
-                            <div class="choice">D. damaging</div>
-                        </div>
-
-                        <button class="show-answer-btn" onclick="toggleAnswer('q3')">Show Answer / 答えを見る</button>
-
-                        <div id="q3" class="answer-section">
-                            <div class="correct">✓ 正解: この文には誤りがありません (All correct)</div>
-                            <div class="explanation">
-                                <div class="grammar-point">
-                                    <strong>文法ポイント：複雑な文構造の分析</strong><br>
-                                    この文はすべて正しく書かれています：<br><br>
-                                    • <strong>argue</strong> - 正しい動詞形<br>
-                                    • <strong>preventing</strong> - 「about」の後の動名詞として正しい<br>
-                                    • <strong>have to educate</strong> - 正しい義務の表現<br>
-                                    • <strong>damaging</strong> - 動名詞として正しい使用
-                                </div>
-                                <strong>文構造の説明：</strong><br>
-                                この文は条件節 (if we are serious) と結果節 (we have to educate) を含む複雑な文ですが、すべての文法要素が正しく使われています。
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="sent-row">
+              <p class="sent-en">
+                1) Scientists have struggled to create technology that fully replaces physical
+                abilities lost by people with disabilities.
+              </p>
+              <p class="sent-role">役割：背景＋問題提示</p>
+              <p class="sent-simpler">Simpler: Scientists have tried to make machines that can replace lost abilities.</p>
+              <p class="sent-ja">科学者たちは、障害で失われた身体能力を完全に代わりにできる技術を作ろうと苦労してきた。</p>
             </div>
 
-            <!-- Section B -->
-            <div class="section">
-                <div class="section-header" onclick="toggleSection('sectionB')">
-                    <h2>Section B: Questions 4-6</h2>
-                    <span class="toggle-icon">▼</span>
-                </div>
-                <div id="sectionB" class="section-content">
-                    <!-- Question 4 -->
-                    <div class="question">
-                        <div class="question-text">
-                            <strong>4.</strong> Like many other countries, Canada struggles with how to create a fair and effective immigration policy.
-                            <div class="japanese-text">他の多くの国々と同様に、カナダは公平で効果的な移民政策をどのように作るかで苦労している。</div>
-                        </div>
-
-                        <div class="vocab-box">
-                            <strong>📖 Vocabulary:</strong><br>
-                            • <strong>Struggles with</strong> = 苦労する (has difficulty with something)<br>
-                            • <strong>Fair</strong> = 公平な (treating everyone equally)<br>
-                            • <strong>Effective</strong> = 効果的な (works well)<br>
-                            • <strong>Immigration policy</strong> = 移民政策 (rules about who can move to the country)
-                        </div>
-
-                        <div class="choices">
-                            <div class="choice">A. Like</div>
-                            <div class="choice">B. struggles</div>
-                            <div class="choice">C. how to create</div>
-                            <div class="choice">D. fair and effective</div>
-                        </div>
-
-                        <button class="show-answer-btn" onclick="toggleAnswer('q4')">Show Answer / 答えを見る</button>
-
-                        <div id="q4" class="answer-section">
-                            <div class="correct">✓ 正解: この文には誤りがありません (All correct)</div>
-                            <div class="explanation">
-                                <div class="grammar-point">
-                                    <strong>文法ポイント：比較と主語動詞の一致</strong><br>
-                                    すべての要素が正しく使われています：<br><br>
-                                    • <strong>Like</strong> - 比較として正しい前置詞<br>
-                                    • <strong>struggles</strong> - 「Canada」(単数)に対して正しい動詞形<br>
-                                    • <strong>how to create</strong> - 正しい不定詞の構造<br>
-                                    • <strong>fair and effective</strong> - 正しい形容詞の使用
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Question 5 -->
-                    <div class="question">
-                        <div class="question-text">
-                            <strong>5.</strong> The government recently passed legislation introducing a new points-based system that will determine which applicants are allowed to immigrate.
-                            <div class="japanese-text">政府は最近、どの申請者が移民を許可されるかを決定する新しいポイント制を導入する法律を可決した。</div>
-                        </div>
-
-                        <div class="vocab-box">
-                            <strong>📖 Vocabulary:</strong><br>
-                            • <strong>Legislation</strong> = 法律 (official laws)<br>
-                            • <strong>Points-based system</strong> = ポイント制 (system that uses points to decide)<br>
-                            • <strong>Determine</strong> = 決定する (to decide)<br>
-                            • <strong>Applicants</strong> = 申請者 (people who apply)<br>
-                            • <strong>Immigrate</strong> = 移民する (to move to another country permanently)
-                        </div>
-
-                        <div class="choices">
-                            <div class="choice">A. passed</div>
-                            <div class="choice">B. introducing</div>
-                            <div class="choice">C. will determine</div>
-                            <div class="choice">D. are allowed</div>
-                        </div>
-
-                        <button class="show-answer-btn" onclick="toggleAnswer('q5')">Show Answer / 答えを見る</button>
-
-                        <div id="q5" class="answer-section">
-                            <div class="correct">✓ 正解: この文には誤りがありません (All correct)</div>
-                            <div class="explanation">
-                                <div class="grammar-point">
-                                    <strong>文法ポイント：複雑な文構造</strong><br>
-                                    この文はすべて正しいです：<br><br>
-                                    • <strong>passed</strong> - 過去形として正しい<br>
-                                    • <strong>introducing</strong> - 現在分詞として「legislation」を修飾<br>
-                                    • <strong>will determine</strong> - 未来を表す正しい形<br>
-                                    • <strong>are allowed</strong> - 受動態として正しい
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Question 6 -->
-                    <div class="question">
-                        <div class="question-text">
-                            <strong>6.</strong> Although many people agree that the system is fairer than the previous policy, others complaining that it does not take family circumstances into account.
-                            <div class="japanese-text">多くの人々がこのシステムは以前の政策よりも公平だと同意しているが、家族の状況を考慮していないと不満を言う人もいる。</div>
-                        </div>
-
-                        <div class="vocab-box">
-                            <strong>📖 Vocabulary:</strong><br>
-                            • <strong>Fairer</strong> = より公平な (more equal/just)<br>
-                            • <strong>Previous</strong> = 以前の (the one before)<br>
-                            • <strong>Complaining</strong> = 不満を言う (saying something is wrong)<br>
-                            • <strong>Circumstances</strong> = 状況 (situation/conditions)<br>
-                            • <strong>Take into account</strong> = 考慮する (to consider/think about)
-                        </div>
-
-                        <div class="choices">
-                            <div class="choice">A. agree</div>
-                            <div class="choice">B. fairer than</div>
-                            <div class="choice">C. others complaining</div>
-                            <div class="choice">D. does not take</div>
-                        </div>
-
-                        <button class="show-answer-btn" onclick="toggleAnswer('q6')">Show Answer / 答えを見る</button>
-
-                        <div id="q6" class="answer-section">
-                            <div class="correct">✓ 正解: C. others complaining</div>
-                            <div class="explanation">
-                                <div class="grammar-point">
-                                    <strong>文法ポイント：動詞の時制</strong><br>
-                                    「complaining」は間違っています。ここでは動詞が必要です。<br><br>
-                                    <strong>正しい文：</strong><br>
-                                    ...others complain that it does not take...<br>
-                                    または<br>
-                                    ...others are complaining that it does not take...<br><br>
-                                    「complaining」だけでは不完全な動詞形です。
-                                </div>
-                                <strong>他の選択肢：</strong><br>
-                                <span class="incorrect">✗ A. agree</span> - 正しい動詞形<br>
-                                <span class="incorrect">✗ B. fairer than</span> - 正しい比較級<br>
-                                <span class="incorrect">✗ D. does not take</span> - 正しい否定形
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="sent-row">
+              <p class="sent-en">
+                2) For example, electronic tablets assist with speaking but slow down conversation.
+              </p>
+              <p class="sent-role">役割：具体例（今の技術の限界）</p>
+              <p class="sent-simpler">Simpler: Tablets help people speak, but they make conversation slow.</p>
+              <p class="sent-ja">たとえば、タブレット端末は会話を助けるが、会話のスピードを遅くしてしまう。</p>
             </div>
 
+            <div class="sent-row">
+              <p class="sent-en">
+                3) However, this might all change thanks to brain-machine interfaces (BMIs).
+              </p>
+              <p class="sent-role">役割：転換＋新テーマ（BMI）の導入</p>
+              <p class="sent-simpler">Simpler: But BMIs might change this situation.</p>
+              <p class="sent-ja">しかし、BMIs と呼ばれる技術によって、この状況は変わるかもしれない。</p>
+            </div>
+
+            <div class="sent-row">
+              <p class="sent-en">
+                4) This technology makes it possible to control various devices using brain signals.
+              </p>
+              <p class="sent-role">役割：BMIs の基本説明（トピック）</p>
+              <p class="sent-simpler">Simpler: With BMIs, people can control devices with brain signals.</p>
+              <p class="sent-ja">この技術を使うと、人は脳の信号でさまざまな機器を操作できる。</p>
+            </div>
+
+            <!-- Paragraph 2 -->
+            <p class="label-en" style="margin-top:8px;">Paragraph 2（Supporters）</p>
+
+            <div class="sent-row">
+              <p class="sent-en">5) Supporters of this technology point to the medical benefits.</p>
+              <p class="sent-role">役割：賛成派の導入</p>
+              <p class="sent-simpler">Simpler: Supporters focus on the medical benefits.</p>
+              <p class="sent-ja">この技術の支持者たちは、医療面での利点を強調している。</p>
+            </div>
+
+            <div class="sent-row">
+              <p class="sent-en">
+                6) The direct reading of brain waves will not only allow people who are unable to
+                move due to being paralyzed to speak via their thoughts.
+              </p>
+              <p class="sent-role">役割：メリット① 麻痺した人が考えで話せる</p>
+              <p class="sent-simpler">Simpler: BMIs can let paralyzed people “speak” with their thoughts.</p>
+              <p class="sent-ja">脳波を直接読むことで、麻痺して動けない人が「考え」で話せるようになる。</p>
+            </div>
+
+            <div class="sent-row">
+              <p class="sent-en">7) They will also be able to manipulate artificial body parts.</p>
+              <p class="sent-role">役割：メリット② 人工の手足を動かせる</p>
+              <p class="sent-simpler">Simpler: They can also move artificial body parts.</p>
+              <p class="sent-ja">さらに、人工の手足を動かすこともできるようになる。</p>
+            </div>
+
+            <div class="sent-row">
+              <p class="sent-en">8) These things will have major impacts on people's lives.</p>
+              <p class="sent-role">役割：メリットのまとめ</p>
+              <p class="sent-simpler">Simpler: These changes will strongly affect people’s lives.</p>
+              <p class="sent-ja">これらは人々の生活に大きな影響を与えるだろう。</p>
+            </div>
+
+            <!-- Paragraph 3 -->
+            <p class="label-en" style="margin-top:8px;">Paragraph 3（Opponents）</p>
+
+            <div class="sent-row">
+              <p class="sent-en">9) However, some people worry about potential risks.</p>
+              <p class="sent-role">役割：反対派の導入</p>
+              <p class="sent-simpler">Simpler: But some people are worried about risks.</p>
+              <p class="sent-ja">しかし、一部の人々は潜在的な危険を心配している。</p>
+            </div>
+
+            <div class="sent-row">
+              <p class="sent-en">
+                10) Since BMIs read brain signals, there is concern that thoughts and emotions
+                could be accessed inappropriately.
+              </p>
+              <p class="sent-role">役割：リスク① 考え・感情への不正アクセス</p>
+              <p class="sent-simpler">Simpler: People are afraid others might read their thoughts and feelings.</p>
+              <p class="sent-ja">BMI は脳の信号を読むので、考えや感情に不適切にアクセスされるのではないかと懸念されている。</p>
+            </div>
+
+            <div class="sent-row">
+              <p class="sent-en">11) Misuse of this data poses a serious privacy threat.</p>
+              <p class="sent-role">役割：プライバシーの脅威</p>
+              <p class="sent-simpler">Simpler: Misusing brain data is a serious privacy problem.</p>
+              <p class="sent-ja">こうしたデータの悪用は、深刻なプライバシー上の脅威となる。</p>
+            </div>
+
+            <div class="sent-row">
+              <p class="sent-en">12) Additionally, the technology could have the opposite of its intended effect.</p>
+              <p class="sent-role">役割：リスク② 逆効果の可能性</p>
+              <p class="sent-simpler">Simpler: The technology might even have the opposite effect.</p>
+              <p class="sent-ja">さらに、この技術は、もともとの目的とは反対の結果をもたらす可能性もある。</p>
+            </div>
+
+            <div class="sent-row">
+              <p class="sent-en">13) The brain requires consistent exercise to continue functioning at a high level.</p>
+              <p class="sent-role">役割：理由 脳もトレーニングが必要</p>
+              <p class="sent-simpler">Simpler: The brain needs regular “training” to stay strong.</p>
+              <p class="sent-ja">脳は、高いレベルで働き続けるには、継続的なトレーニングが必要である。</p>
+            </div>
+
+            <div class="sent-row">
+              <p class="sent-en">
+                14) To give a small example, excessive use of a GPS can weaken a person's navigation skills.
+              </p>
+              <p class="sent-role">役割：例 GPSに頼りすぎると方向感覚が弱る</p>
+              <p class="sent-simpler">Simpler: If you use GPS too much, your sense of direction may get weaker.</p>
+              <p class="sent-ja">小さな例として、GPS を使いすぎると、人の方向感覚が弱くなることがある。</p>
+            </div>
+
+            <div class="sent-row">
+              <p class="sent-en">
+                15) Who knows what natural skills will be lost due to excessive reliance on such technology?
+              </p>
+              <p class="sent-role">役割：結び 警告・問題提起</p>
+              <p class="sent-simpler">Simpler: We do not know what skills we may lose if we rely too much on this technology.</p>
+              <p class="sent-ja">このような技術に頼りすぎることで、どんな自然な能力が失われるのか、誰にも分からない。</p>
+            </div>
+          </div>
+
+          <div class="box">
+            <div class="box-header">Extracted key ideas｜要約に必要な中身だけ抜き出す</div>
+            <p>ここまでを踏まえて、「要約に必須の情報」だけをまとめ直す。</p>
+
+            <ul class="clean">
+              <li><strong>テーマ：</strong> BMIs = 脳の信号で機械を操作する技術。</li>
+              <li><strong>メリット：</strong> 麻痺した人などが考えで話せる・人工の手足を動かせる → 障害のある人の生活改善。</li>
+              <li><strong>リスク：</strong> 脳データの悪用 → プライバシーの脅威。技術に頼りすぎる → 自然な能力（方向感覚など）が弱くなる。</li>
+              <li><strong>構造：</strong> 支持者（メリット） vs 反対派（リスク）という対立構造。</li>
+            </ul>
+
+            <div class="pill-row">
+              <div class="pill"><strong>ポイント：</strong> まずは「何を書くか」を決める。まだ文章にしなくていい。</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- STEP 2 -->
+        <section id="step2">
+          <p class="section-label">STEP 2</p>
+          <h2 class="section-title">Cut unnecessary content｜不要なところを削る</h2>
+          <p class="section-sub">
+            要約では、ディテールを全部書いていたら語数オーバー。<br>
+            「残す」「削る」を決めて、芯だけ残す。
+          </p>
+
+          <div class="box">
+            <div class="box-header">Keep vs Cut｜残す / 削る</div>
+            <div class="two-col">
+              <div>
+                <p class="label-en">KEEP（残す）</p>
+                <ul class="clean">
+                  <li>BMIs の基本説明（脳の信号で機械を操作する技術）。</li>
+                  <li>障害のある人が、考えで話す＋人工の手足を動かす、というメリット。</li>
+                  <li>生活が大きく改善されるという賛成派の主張。</li>
+                  <li>プライバシーの脅威（脳データの悪用）。</li>
+                  <li>技術への過度な依存で自然な能力が弱まるという懸念。</li>
+                  <li>「利点もあるが、危険もある」という対立構造。</li>
+                </ul>
+              </div>
+              <div>
+                <p class="label-en">CUT / SHORTEN（削る・圧縮する）</p>
+                <ul class="clean">
+                  <li>Scientists have struggled... の歴史的背景 → 1フレーズに圧縮。</li>
+                  <li>タブレットの例 → “current tools are limited” 程度に短く。</li>
+                  <li>GPS の詳しい説明 → 「方向感覚が弱くなる」だけ残してOK。</li>
+                  <li>「脳には継続的なトレーニングが必要」 → 1文にまとめれば足りる。</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="sample-box">
+              <p class="label-en">Bullet form memo｜まずメモに落とす</p>
+              <p class="sample-en">
+                BMIs are technology that lets people control devices with brain signals.<br>
+                They can help people with disabilities, for example paralyzed people, communicate and move artificial body parts.<br>
+                Supporters say this will greatly improve patients’ lives.<br>
+                However, opponents worry that brain data might be misused and privacy might be violated.<br>
+                They also fear that depending too much on BMIs could weaken natural abilities, like navigation skills.
+              </p>
+              <p class="sample-ja">
+                要約を書く前のメモ：何を書くかだけ決めた状態。まだ「きれいな英文」にしなくてOK。
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- STEP 3 -->
+        <section id="step3">
+          <p class="section-label">STEP 3</p>
+          <h2 class="section-title">Paraphrase & connect｜言い換えてつなぐ</h2>
+          <p class="section-sub">
+            最後に、メモを「自分の英語」に書き換えて、<mark>つなぎ言葉</mark>を入れて1本のパラグラフにする。
+          </p>
+
+          <div class="box">
+            <div class="box-header">Idea-by-idea paraphrasing｜1アイデアずつ言い換え</div>
+
+            <div class="sample-box">
+              <p class="label-en">① Topic｜テーマ</p>
+              <p class="sample-en">
+                BMIs are systems that allow people to operate machines using their brain signals.
+              </p>
+              <p class="sample-ja">
+                BMIs は、人が脳の信号を使って機械を操作できるようにするシステムである。
+              </p>
+            </div>
+
+            <div class="sample-box">
+              <p class="label-en">② Benefit｜メリット（障害のある人を助ける）</p>
+              <p class="sample-en">
+                This technology can help people with disabilities, especially those who are paralyzed,
+                communicate and control artificial body parts.
+              </p>
+              <p class="sample-ja">
+                この技術は、特に麻痺している人などの障害のある人が、コミュニケーションをとったり
+                人工の手足を動かしたりするのを助けることができる。
+              </p>
+            </div>
+
+            <div class="sample-box">
+              <p class="label-en">③ Supporters’ view｜賛成派のまとめ</p>
+              <p class="sample-en">
+                Supporters believe that BMIs will greatly improve patients’ lives.
+              </p>
+              <p class="sample-ja">
+                支持者たちは、BMI が患者の生活を大きく向上させると考えている。
+              </p>
+            </div>
+
+            <div class="sample-box">
+              <p class="label-en">④ Risk 1｜プライバシー</p>
+              <p class="sample-en">
+                However, opponents worry that brain data could be misused and that users’ privacy could be threatened.
+              </p>
+              <p class="sample-ja">
+                しかし一方で、反対派は脳のデータが悪用され、利用者のプライバシーが脅かされるのではないかと心配している。
+              </p>
+            </div>
+
+            <div class="sample-box">
+              <p class="label-en">⑤ Risk 2｜能力低下</p>
+              <p class="sample-en">
+                They also fear that depending too much on BMIs could weaken people’s natural abilities, such as their sense of direction.
+              </p>
+              <p class="sample-ja">
+                また、BMI に過度に依存すると、人々の方向感覚などの自然な能力が弱くなるのではないかとも心配している。
+              </p>
+            </div>
+          </div>
+
+          <div class="box">
+            <div class="box-header">Put it together｜全部つなげた要約</div>
+
+            <div class="sample-box model-box">
+              <p class="label-en">Model summary（約70語）</p>
+              <p class="sample-en">
+                A technology called BMIs allows people to operate machines using their brain signals.
+                This system can help people with disabilities, especially those who are paralyzed,
+                communicate and control artificial body parts, and supporters believe it will greatly
+                improve their lives. However, opponents worry that brain data could be misused and
+                threaten users’ privacy, and they also fear that overreliance on BMIs could weaken
+                natural abilities such as navigation skills.
+              </p>
+              <p class="model-ja">
+                BMIs と呼ばれる技術は、人々が脳の信号を使って機械を操作できるようにするものである。
+                このシステムは、特に麻痺した人などの障害のある人がコミュニケーションをとったり
+                人工の手足を動かしたりするのを助けることができ、支持者たちはこれが彼らの生活を大きく
+                向上させると考えている。しかし一方で、脳のデータが悪用されて利用者のプライバシーが
+                脅かされるのではないかという懸念もあり、さらに BMI に過度に依存すると、方向感覚などの
+                自然な能力が弱くなるのではないかと心配する声もある。
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- VOCAB -->
+        <section id="vocab">
+          <p class="section-label">Vocabulary</p>
+          <h2 class="section-title">Useful words & phrases｜使える語彙</h2>
+          <p class="section-sub">
+            この本文から、そのまま要約・英作文に使いやすい単語だけをピックアップ。
+          </p>
+
+          <div class="box">
+            <table>
+              <thead>
+                <tr>
+                  <th>Word / Phrase</th>
+                  <th>Simple English</th>
+                  <th>日本語</th>
+                  <th>Example</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>replace</td>
+                  <td>take the place of</td>
+                  <td>〜の代わりになる</td>
+                  <td>New technology cannot completely replace natural abilities.<br>新しい技術は人間本来の能力を完全に置き換えることはできない。</td>
+                </tr>
+                <tr>
+                  <td>disability</td>
+                  <td>a problem that makes some activities difficult</td>
+                  <td>障害</td>
+                  <td>BMIs may help people with disabilities.<br>BMIs は障害のある人を助けるかもしれない。</td>
+                </tr>
+                <tr>
+                  <td>brain-machine interface (BMI)</td>
+                  <td>technology linking brain and devices</td>
+                  <td>脳と機械をつなぐ技術</td>
+                  <td>BMIs allow users to control devices using brain signals.<br>BMIs はユーザーが脳の信号で機器を操作できるようにする。</td>
+                </tr>
+                <tr>
+                  <td>artificial body parts</td>
+                  <td>mechanical arms or legs</td>
+                  <td>人工の手足</td>
+                  <td>Some BMIs can move artificial body parts.<br>一部の BMI は人工の手足を動かすことができる。</td>
+                </tr>
+                <tr>
+                  <td>paralyzed</td>
+                  <td>unable to move</td>
+                  <td>麻痺した</td>
+                  <td>BMIs may let paralyzed patients speak via their thoughts.<br>BMIs によって麻痺した患者が考えで話せるようになるかもしれない。</td>
+                </tr>
+                <tr>
+                  <td>misuse</td>
+                  <td>use in a wrong or bad way</td>
+                  <td>悪用する</td>
+                  <td>Misuse of brain data is a serious issue.<br>脳データの悪用は深刻な問題だ。</td>
+                </tr>
+                <tr>
+                  <td>privacy threat</td>
+                  <td>danger to personal information</td>
+                  <td>プライバシーの脅威</td>
+                  <td>Misuse of this data poses a serious privacy threat.<br>このデータの悪用は深刻なプライバシーの脅威となる。</td>
+                </tr>
+                <tr>
+                  <td>rely on</td>
+                  <td>depend on</td>
+                  <td>〜に頼る</td>
+                  <td>We should not rely too much on technology.<br>私たちは技術に頼りすぎるべきではない。</td>
+                </tr>
+                <tr>
+                  <td>weaken skills</td>
+                  <td>make abilities weaker</td>
+                  <td>能力を弱める</td>
+                  <td>Using GPS all the time may weaken our navigation skills.<br>いつも GPS に頼っていると方向感覚が弱くなるかもしれない。</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- DISCOURSE MARKERS -->
+        <section id="markers">
+          <p class="section-label">Discourse markers</p>
+          <h2 class="section-title">Useful connectors｜つなぎ言葉</h2>
+          <p class="section-sub">
+            要約・英作文でそのまま使える “テンプレ接続表現”。
+            これだけでも文章のレベルが一段上がる。
+          </p>
+
+          <div class="box">
+            <p class="label-en">Reason｜理由</p>
+            <div class="phrase-grid">
+              <div class="phrase-card">
+                <div class="phrase-main">because</div>
+                <div class="phrase-sub">一番基本。「なぜなら〜だからだ」。</div>
+              </div>
+              <div class="phrase-card">
+                <div class="phrase-main">since</div>
+                <div class="phrase-sub">ややフォーマルな because。</div>
+              </div>
+              <div class="phrase-card">
+                <div class="phrase-main">as a result</div>
+                <div class="phrase-sub">その結果。</div>
+              </div>
+              <div class="phrase-card">
+                <div class="phrase-main">due to</div>
+                <div class="phrase-sub">because of / 〜が原因で。</div>
+              </div>
+            </div>
+
+            <p class="label-en" style="margin-top:10px;">Contrast｜対比・逆</p>
+            <div class="phrase-grid">
+              <div class="phrase-card">
+                <div class="phrase-main">however</div>
+                <div class="phrase-sub">しかし。</div>
+              </div>
+              <div class="phrase-card">
+                <div class="phrase-main">on the other hand</div>
+                <div class="phrase-sub">一方で。</div>
+              </div>
+              <div class="phrase-card">
+                <div class="phrase-main">while</div>
+                <div class="phrase-sub">〜だが一方で。</div>
+              </div>
+              <div class="phrase-card">
+                <div class="phrase-main">although</div>
+                <div class="phrase-sub">〜ではあるが。</div>
+              </div>
+            </div>
+
+            <p class="label-en" style="margin-top:10px;">Addition｜情報の追加</p>
+            <div class="phrase-grid">
+              <div class="phrase-card">
+                <div class="phrase-main">also</div>
+                <div class="phrase-sub">〜もまた（カジュアル）。</div>
+              </div>
+              <div class="phrase-card">
+                <div class="phrase-main">in addition</div>
+                <div class="phrase-sub">そのうえ、さらに（書き言葉向き）。</div>
+              </div>
+              <div class="phrase-card">
+                <div class="phrase-main">furthermore</div>
+                <div class="phrase-sub">さらにそのうえ（やや固め）。</div>
+              </div>
+              <div class="phrase-card">
+                <div class="phrase-main">moreover</div>
+                <div class="phrase-sub">そのうえ（フォーマル）。</div>
+              </div>
+            </div>
+
+            <p class="label-en" style="margin-top:10px;">Conclusion｜結論</p>
+            <div class="phrase-grid">
+              <div class="phrase-card">
+                <div class="phrase-main">therefore</div>
+                <div class="phrase-sub">したがって。</div>
+              </div>
+              <div class="phrase-card">
+                <div class="phrase-main">as a result</div>
+                <div class="phrase-sub">その結果。</div>
+              </div>
+              <div class="phrase-card">
+                <div class="phrase-main">in conclusion</div>
+                <div class="phrase-sub">結論として。</div>
+              </div>
+            </div>
+
+            <div class="sample-box" style="margin-top:10px;">
+              <p class="label-en">Example with markers</p>
+              <p class="sample-en">
+                <strong>First</strong>, BMIs can support disabled people. <strong>However</strong>, some people worry about
+                privacy. <strong>In addition</strong>, they may weaken natural skills. <strong>Therefore</strong>, the technology
+                has both benefits and risks.
+              </p>
+              <p class="sample-ja">
+                まず、BMI は障害のある人を支援できる。しかし、プライバシーを心配する人もいる。
+                さらに、人間本来の能力を弱める可能性もある。したがって、この技術には利点と欠点の両方がある。
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <p class="bottom-note">
+          Made as a breakdown, not a shortcut: 生徒用に「途中経過」が全部見える仕様。
+        </p>
+      </div>
+
+      <!-- SIDE COLUMN -->
+      <aside class="side-col">
+        <div class="box">
+          <div class="box-header">Roadmap｜見る順番のおすすめ</div>
+          <ul class="side-list">
+            <li onclick="scrollToId('original')">
+              <span class="num">0</span><span>元の本文を読む（Original passage）</span>
+            </li>
+            <li onclick="scrollToId('step1')">
+              <span class="num">1</span><span>文ごとに役割をつける（Extract）</span>
+            </li>
+            <li onclick="scrollToId('step2')">
+              <span class="num">2</span><span>残す / 削るを決める（Cut）</span>
+            </li>
+            <li onclick="scrollToId('step3')">
+              <span class="num">3</span><span>言い換え＋つなぎ言葉で要約を作る（Paraphrase）</span>
+            </li>
+            <li onclick="scrollToId('vocab')">
+              <span class="num">4</span><span>語彙をチェックして再利用（Vocabulary）</span>
+            </li>
+            <li onclick="scrollToId('markers')">
+              <span class="num">5</span><span>つなぎ言葉を暗記（Discourse markers）</span>
+            </li>
+          </ul>
+          <p class="mini-note">
+            授業なら「今日はSTEP1〜2だけ」「次回STEP3＋自分で要約を書かせる」みたいに分けて使える。
+          </p>
+          <div class="side-tag-row">
+            <span class="side-tag">📝 Eiken / 入試要約</span>
+            <span class="side-tag">📘 CEFR A2–B1</span>
+            <span class="side-tag">👀 途中の思考プロセスを見せる用</span>
+          </div>
         </div>
-    </div>
+      </aside>
+    </main>
+  </div>
 
-    <script>
-        function toggleSection(sectionId) {
-            const content = document.getElementById(sectionId);
-            const header = content.previousElementSibling;
-            
-            content.classList.toggle('active');
-            header.classList.toggle('active');
-        }
+  <script>
+    function scrollToId(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
 
-        function toggleAnswer(questionId) {
-            const answer = document.getElementById(questionId);
-            answer.classList.toggle('visible');
-        }
-    </script>
+    const body = document.body;
+    const btn = document.getElementById("themeToggle");
+
+    function setTheme(theme) {
+      if (theme === "light") {
+        body.classList.remove("theme-dark");
+        body.classList.add("theme-light");
+        btn.textContent = "☀️ Light mode";
+      } else {
+        body.classList.remove("theme-light");
+        body.classList.add("theme-dark");
+        btn.textContent = "🌙 Dark mode";
+      }
+      localStorage.setItem("summaryTheme", theme);
+    }
+
+    // 初期テーマ：システム設定 or 保存されたもの
+    (function initTheme() {
+      const saved = localStorage.getItem("summaryTheme");
+      if (saved === "light" || saved === "dark") {
+        setTheme(saved);
+      } else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) {
+        setTheme("light");
+      } else {
+        setTheme("dark");
+      }
+    })();
+
+    btn.addEventListener("click", () => {
+      const current = body.classList.contains("theme-light") ? "light" : "dark";
+      setTheme(current === "light" ? "dark" : "light");
+    });
+  </script>
 </body>
 </html>
